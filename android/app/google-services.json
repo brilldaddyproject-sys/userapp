@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "209228611055",
+    "project_id": "brilldaddy-c9ce7",
+    "storage_bucket": "brilldaddy-c9ce7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209228611055:android:ac94b24c646ee16f59ca1a",
+        "android_client_info": {
+          "package_name": "com.user.brilldaddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOVH0tZ_YfD-tIm0IEBgLmqxPrj6rt_t4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
