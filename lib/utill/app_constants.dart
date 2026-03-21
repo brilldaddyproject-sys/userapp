@@ -20,7 +20,8 @@ class AppConstants {
   static const String checkbrilldadywalletbalance = '/api/v1/coupon/checkbrilldadywalletbalance';
   static const String voucherrazorpayorderid = '/api/v1/voucherrazorpayorderid/';
 
-  static const String baseUrl = 'https://brilldaddy.com';
+  //static const String baseUrl = 'https://brilldaddy.com';
+  static const String baseUrl = 'https://new.brilldaddy.com';
   static const String userId = 'userId';
   static const String name = 'name';
   static const String categoriesUri = '/api/v1/categories';
