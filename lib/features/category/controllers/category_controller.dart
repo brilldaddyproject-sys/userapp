@@ -17,6 +17,8 @@ import 'package:provider/provider.dart';
 import '../../../common/basewidget/show_custom_snakbar_widget.dart';
 import '../../profile/controllers/profile_contrroller.dart';
 import '../../vouchers/model/razor_order_model.dart';
+import '../../vouchers/model/my_claim_model.dart';
+import '../../vouchers/model/my_claim_details_model.dart';
 import '../../vouchers/model/voucher_bid_details_model.dart';
 import '../../vouchers/model/voucher_bid_model.dart';
 import '../../vouchers/model/voucher_request.dart';
@@ -28,11 +30,15 @@ class CategoryController extends ChangeNotifier {
 
 
   bool _isLoading = false;
+  bool _isMyClaimsLoading = false;
+  bool _isMyClaimDetailsLoading = false;
   final List<CategoryModel> _filteredCategoryList = [];
   final List<CategoryModel> _categoryList = [];
   final List<VoucherModel>? _voucherList = [];
   final List<VoucherModel>? _doCanvoucherList = [];
   final List<VoucherBidModel>? _myVoucherList = [];
+  final List<MyClaimModel>? _myClaimList = [];
+  MyClaimDetailsModel? _myClaimDetails;
   final List<VoucherBidDetailModel>? _myVoucherDetailsList = [];
   final List<CategoryModel> _sellerWiseCategoryList = [];
   final List<VoucherWinnerModel> _voucherWinnerList = [];
@@ -42,6 +48,8 @@ class CategoryController extends ChangeNotifier {
   int? get currentIndex => _currentIndex;
   List<CategoryModel> get categoryList => _categoryList;
   List<VoucherBidModel>? get myVoucherList => _myVoucherList;
+  List<MyClaimModel>? get myClaimList => _myClaimList;
+  MyClaimDetailsModel? get myClaimDetails => _myClaimDetails;
   List<VoucherBidDetailModel>? get myVoucherDetailsList => _myVoucherDetailsList;
   List<VoucherModel>? get voucherList => _voucherList;
   List<VoucherModel>? get doCanvoucherList => _doCanvoucherList;
@@ -50,6 +58,8 @@ class CategoryController extends ChangeNotifier {
   List<CategoryModel> get sellerWiseCategoryList => _sellerWiseCategoryList;
   List<CategoryModel> get filteredCategoryList => _filteredCategoryList;
   bool get isLoading => _isLoading;
+  bool get isMyClaimsLoading => _isMyClaimsLoading;
+  bool get isMyClaimDetailsLoading => _isMyClaimDetailsLoading;
   int? get categorySelectedIndex => _categorySelectedIndex;
   RazorOrderModel? _razorModel;
   RazorOrderModel? get razorModel => _razorModel;
@@ -161,7 +171,7 @@ class CategoryController extends ChangeNotifier {
   Future<ApiResponseModel> saveVoucher(VoucherRequest request, BuildContext context, String from, String? value) async {
     _isLoading = true;
     notifyListeners();
-    ApiResponseModel apiResponse = await categoryServiceInterface?.saveVouchers(request);
+    ApiResponseModel apiResponse = await categoryServiceInterface?.saveVouchers(request,from);
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
       _isLoading = false;
       //showCustomSnackBar(apiResponse.response!.data["message"], Get.context!, isError: false);
@@ -191,8 +201,47 @@ class CategoryController extends ChangeNotifier {
       ApiChecker.checkApi( apiResponse);
     }
 
-    //onUpdateFilteredCategoryList(isSeller: true);
+    notifyListeners();
+  }
 
+  Future<void> getMyClaims() async {
+    _isMyClaimsLoading = true;
+    notifyListeners();
+
+    ApiResponseModel apiResponse = await categoryServiceInterface!.myClaims();
+
+    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      _myClaimList!.clear();
+      final List<dynamic> claims = apiResponse.response!.data['data'] ?? [];
+      for (final claim in claims) {
+        _myClaimList!.add(MyClaimModel.fromJson(claim));
+      }
+    } else {
+      ApiChecker.checkApi(apiResponse);
+    }
+
+    _isMyClaimsLoading = false;
+    notifyListeners();
+  }
+
+  void clearMyClaimDetails() {
+    _myClaimDetails = null;
+    _isMyClaimDetailsLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> getMyClaimsDetails(String id) async {
+    _isMyClaimDetailsLoading = true;
+    notifyListeners();
+
+    ApiResponseModel apiResponse = await categoryServiceInterface!.myClaimsDetails(id);
+    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      _myClaimDetails = MyClaimDetailsModel.fromJson(apiResponse.response!.data);
+    } else {
+      ApiChecker.checkApi(apiResponse);
+    }
+
+    _isMyClaimDetailsLoading = false;
     notifyListeners();
   }
 
@@ -210,10 +259,10 @@ class CategoryController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getRazorpayOrderId(String amount, int id, String bidAmount) async {
+  Future<void> getRazorpayOrderId(String amount, int id, String bidAmount,String type) async {
     _isLoading =true;
     notifyListeners();
-    ApiResponseModel apiResponse = await categoryServiceInterface!.getRazorpayOrderId(amount,id,bidAmount);
+    ApiResponseModel apiResponse = await categoryServiceInterface!.getRazorpayOrderId(amount,id,bidAmount,type);
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
       razorPayOrderId = apiResponse.response!.data['order_id'];
       _isLoading = false;
@@ -226,6 +275,8 @@ class CategoryController extends ChangeNotifier {
 
 
   }
+
+
 
 
   void onUpdateFilteredCategoryList({required bool isSeller}) {

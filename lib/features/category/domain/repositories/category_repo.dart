@@ -75,12 +75,27 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
   }
 
   @override
-  Future saveVoucher(VoucherRequest model) async{
+  Future<ApiResponseModel> saveVoucher(
+      VoucherRequest model, String from) async {
     try {
-      final response = await dioClient!.post(AppConstants.saveVoucherUri, data: model.toJson());
+      String url;
+
+      if (from == "product") {
+        url = AppConstants.productvoucherbidsubmit;
+      } else {
+        url = AppConstants.saveVoucherUri;
+      }
+
+      final response = await dioClient!.post(
+        url,
+        data: model.toJson(),
+      );
+
       return ApiResponseModel.withSuccess(response);
+
     } catch (e) {
-      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+      return ApiResponseModel.withError(
+          ApiErrorHandler.getMessage(e));
     }
   }
 
@@ -89,6 +104,28 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
     try {
       final response = await dioClient!.get(
           AppConstants.listmyvoucherbids);
+      return ApiResponseModel.withSuccess(response);
+    } catch (e) {
+      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
+  
+  Future getMyClaimsList() async{
+    try {
+      final response = await dioClient!.get(
+          AppConstants.productlistmyvoucherbids);
+      return ApiResponseModel.withSuccess(response);
+    } catch (e) {
+      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
+  @override
+  Future getMyClaimsDetails(String id) async{
+    try {
+      final response = await dioClient!.get(
+          AppConstants.productlistmyvoucherbidsdetails + id);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -129,11 +166,23 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
   }
 
   @override
-  Future getRazorpayOrderId(String amount,int id,String bidAmount) async{
+  Future<ApiResponseModel> getRazorpayOrderId(
+      String amount, int id, String bidAmount, String type) async {
     try {
-      final response = await dioClient!.get(
-          "${AppConstants.voucherrazorpayorderid}$amount/$id/$bidAmount");
+      String url;
+
+      if (type == "voucher") {
+        url =
+        "${AppConstants.voucherrazorpayorderid}$amount/$id/$bidAmount";
+      } else {
+        url =
+        "${AppConstants.productvoucherrazorpayorderid}$amount/$id/$bidAmount";
+      }
+
+      final response = await dioClient!.get(url);
+
       return ApiResponseModel.withSuccess(response);
+
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }

@@ -14,11 +14,15 @@ class AppConstants {
   static const String listvoucherdetails = '/api/v1/listvoucherdetails/';
   static const String winnergallerylist = '/api/v1/customer/address/winnergallerylist';
   static const String saveVoucherUri = '/api/v1/voucherbidsubmit';
+  static const String productvoucherbidsubmit = '/api/v1/productvoucherbidsubmit';
   static const String listmyvoucherbids = '/api/v1/customer/address/listmyvoucherbids';
+  static const String productlistmyvoucherbids = '/api/v1/customer/address/productlistmyvoucherbids';
+  static const String productlistmyvoucherbidsdetails = '/api/v1/customer/address/productlistmyvoucherbidsdetails/';
   static const String listmyvoucherbidsdetails = '/api/v1/customer/address/listmyvoucherbidsdetails/';
   static const String checkrefferaldiscount = '/api/v1/coupon/checkrefferaldiscount';
   static const String checkbrilldadywalletbalance = '/api/v1/coupon/checkbrilldadywalletbalance';
   static const String voucherrazorpayorderid = '/api/v1/voucherrazorpayorderid/';
+  static const String productvoucherrazorpayorderid = '/api/v1/productvoucherrazorpayorderid/';
 
   //static const String baseUrl = 'https://brilldaddy.com';
   static const String baseUrl = 'https://new.brilldaddy.com';
@@ -53,6 +57,8 @@ class AppConstants {
   static const String addressListUri = '/api/v1/customer/address/list';
   static const String removeAddressUri = '/api/v1/customer/address';
   static const String addAddressUri = '/api/v1/customer/address/add';
+  static const String setDefaultAddressUri = '/api/v1/customer/address/setdefaultaddress';
+  static const String getDefaultAddressUri = '/api/v1/customer/address/getdefaultaddress';
   static const String getWishListUri = '/api/v1/customer/wish-list';
   static const String supportTicketUri = '/api/v1/customer/support-ticket/create';
   static const String getBannerList = '/api/v1/banners';

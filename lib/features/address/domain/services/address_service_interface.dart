@@ -20,4 +20,8 @@ abstract class AddressServiceInterface{
   Future<dynamic> getDeliveryRestrictedZipBySearch(String zipcode);
 
   Future<dynamic> getDeliveryRestrictedCountryBySearch(String country);
+
+  Future<dynamic> setDefaultAddress(int addressId);
+
+  Future<dynamic> getDefaultAddress();
 }

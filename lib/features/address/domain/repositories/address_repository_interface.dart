@@ -15,5 +15,9 @@ abstract class AddressRepoInterface<T> implements RepositoryInterface<AddressMod
 
   Future<dynamic> getDeliveryRestrictedCountryBySearch(String country);
 
+  Future<dynamic> setDefaultAddress(int addressId);
+
+  Future<dynamic> getDefaultAddress();
+
 
 }

@@ -24,6 +24,12 @@ class AddressController with ChangeNotifier {
   TextEditingController get searchCountryController => _searchCountryController;
   List<AddressModel>? _addressList;
   List<AddressModel>? get addressList => _addressList;
+  int? _defaultAddressId;
+  int? get defaultAddressId => _defaultAddressId;
+  AddressModel? _defaultAddress;
+  AddressModel? get defaultAddress => _defaultAddress;
+  bool _isDefaultAddressLoading = false;
+  bool get isDefaultAddressLoading => _isDefaultAddressLoading;
   
 
   Future<void> getRestrictedDeliveryCountryList() async {
@@ -80,13 +86,46 @@ class AddressController with ChangeNotifier {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+  int? _defaultAddressLoadingId;
+  int? get defaultAddressLoadingId => _defaultAddressLoadingId;
 
 
 
   Future<List<AddressModel>?> getAddressList({bool fromRemove = false, bool isShipping = false, bool isBilling = false, bool all = false }) async {
     _addressList = await addressServiceInterface.getList(isShipping: isShipping, isBilling: isBilling, fromRemove: fromRemove, all: all);
+    final AddressModel? apiDefaultAddress = _addressList?.cast<AddressModel?>().firstWhere((address) => address?.isDefault == true, orElse: () => null);
+    if(apiDefaultAddress?.id != null) {
+      _defaultAddressId = apiDefaultAddress!.id;
+      _defaultAddress = apiDefaultAddress;
+    } else if((_addressList?.isNotEmpty ?? false) && (_defaultAddressId == null || !_addressList!.any((address) => address.id == _defaultAddressId))) {
+      _defaultAddressId = _addressList!.first.id;
+      _defaultAddress = _addressList!.first;
+    }
     notifyListeners();
     return _addressList;
+  }
+
+  Future<void> getDefaultAddress() async {
+    _isDefaultAddressLoading = true;
+    notifyListeners();
+
+    final ApiResponseModel apiResponse = await addressServiceInterface.getDefaultAddress();
+    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final dynamic responseData = apiResponse.response!.data;
+      if (responseData['status'] == true && responseData['data'] != null) {
+        _defaultAddress = AddressModel.fromJson(responseData['data']);
+        _defaultAddressId = _defaultAddress?.id;
+      } else {
+        _defaultAddress = null;
+        _defaultAddressId = null;
+      }
+    } else {
+      _defaultAddress = null;
+      _defaultAddressId = null;
+    }
+
+    _isDefaultAddressLoading = false;
+    notifyListeners();
   }
 
 
@@ -96,6 +135,9 @@ class AddressController with ChangeNotifier {
     ApiResponseModel apiResponse = await addressServiceInterface.delete(id);
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
       showCustomSnackBar(apiResponse.response!.data['message'], Get.context!, isError: false);
+      if(_defaultAddressId == id) {
+        _defaultAddressId = null;
+      }
       getAddressList(fromRemove: true);
     } else {
       ApiChecker.checkApi( apiResponse);
@@ -158,6 +200,28 @@ class AddressController with ChangeNotifier {
     if(notify) {
       notifyListeners();
     }
+  }
+
+  Future<void> setDefaultAddress(int? addressId) async {
+    if(addressId == null || _defaultAddressLoadingId == addressId) {
+      return;
+    }
+
+    _defaultAddressLoadingId = addressId;
+    notifyListeners();
+
+    ApiResponseModel apiResponse = await addressServiceInterface.setDefaultAddress(addressId);
+    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      _defaultAddressId = addressId;
+      showCustomSnackBar(apiResponse.response!.data['message'], Get.context!, isError: false);
+      await getAddressList(all: true);
+      await getDefaultAddress();
+    } else {
+      ApiChecker.checkApi(apiResponse);
+    }
+
+    _defaultAddressLoadingId = null;
+    notifyListeners();
   }
 
   Future<List<LabelAsModel>> getAddressType() async {

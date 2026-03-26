@@ -11,9 +11,11 @@ abstract class CategoryRepoInterface extends RepositoryInterface{
   Future<dynamic> doCanBit(int id);
   Future<dynamic> getWinnersList();
   Future<dynamic> getMyVouchersList();
+  Future<dynamic> getMyClaimsList();
+  Future<dynamic> getMyClaimsDetails(String id);
   Future<dynamic> getMyVouchersDetails(String id);
-  Future<dynamic> getRazorpayOrderId(String amount,int id,String bidAmount);
-  Future<dynamic> saveVoucher(VoucherRequest model);
+  Future<dynamic> getRazorpayOrderId(String amount,int id,String bidAmount, String type);
+  Future<dynamic> saveVoucher(VoucherRequest model, String from);
 
   Future<ApiResponseModel<T>> getCategoryList<T>({required DataSourceEnum source});
 

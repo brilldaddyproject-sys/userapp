@@ -103,6 +103,26 @@ class AddressRepository implements AddressRepoInterface<ApiResponseModel>{
     }
   }
 
+  @override
+  Future<ApiResponseModel> setDefaultAddress(int addressId) async {
+    try {
+      final Response response = await dioClient!.get('${AppConstants.setDefaultAddressUri}/$addressId');
+      return ApiResponseModel.withSuccess(response);
+    } catch (e) {
+      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
+  @override
+  Future<ApiResponseModel> getDefaultAddress() async {
+    try {
+      final Response response = await dioClient!.get(AppConstants.getDefaultAddressUri);
+      return ApiResponseModel.withSuccess(response);
+    } catch (e) {
+      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
 
   @override
   List<LabelAsModel> getAddressType() {
@@ -124,5 +144,3 @@ class AddressRepository implements AddressRepoInterface<ApiResponseModel>{
   }
 
 }
-
-

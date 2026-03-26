@@ -23,6 +23,7 @@ import 'package:flutter_sixvalley_ecommerce/push_notification/models/notificatio
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:flutter_sixvalley_ecommerce/features/chat/screens/inbox_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/features/notification/screens/notification_screen.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -93,7 +94,8 @@ class NotificationHelper {
         }
       }
 
-      if(message.data['type'] != 'maintenance_mode' || message.data['type'] != 'product_restock_update') {
+      if(message.data['type'] != 'maintenance_mode'
+          && message.data['type'] != 'product_restock_update') {
         NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin, false);
       }
 
@@ -169,25 +171,37 @@ class NotificationHelper {
       String? image;
       NotificationBody notificationBody = convertNotification(message.data);
       if(data) {
-        title = message.data['title'];
-        body = message.data['body'];
-        orderID = message.data['order_id'];
+        title = message.data['title']?.toString();
+        body = message.data['body']?.toString();
+        orderID = message.data['order_id']?.toString();
         image = (message.data['image'] != null && message.data['image'].isNotEmpty)
             ? message.data['image'].startsWith('http') ? message.data['image']
             : '${AppConstants.baseUrl}/storage/app/public/notification/${message.data['image']}' : null;
       }else {
-        title = message.notification?.title;
-        body = message.notification?.body;
-        orderID = message.notification?.titleLocKey;
+        title = message.notification?.title ?? message.data['title']?.toString();
+        body = message.notification?.body ?? message.data['body']?.toString();
+        orderID = message.notification?.titleLocKey ?? message.data['order_id']?.toString();
         if(Platform.isAndroid) {
-          image = (message.notification?.android?.imageUrl != null && message.notification!.android!.imageUrl!.isNotEmpty)
-              ? message.notification!.android!.imageUrl!.startsWith('http') ? message.notification!.android!.imageUrl
-              : '${AppConstants.baseUrl}/storage/app/public/notification/${message.notification?.android?.imageUrl}' : null;
+          final String? androidImage = message.notification?.android?.imageUrl ?? message.data['image']?.toString();
+          image = (androidImage != null && androidImage.isNotEmpty)
+              ? androidImage.startsWith('http') ? androidImage
+              : '${AppConstants.baseUrl}/storage/app/public/notification/$androidImage' : null;
         }else if(Platform.isIOS) {
-          image = (message.notification?.apple?.imageUrl != null && message.notification!.apple!.imageUrl!.isNotEmpty)
-              ? message.notification!.apple!.imageUrl!.startsWith('http') ? message.notification?.apple?.imageUrl
-              : '${AppConstants.baseUrl}/storage/app/public/notification/${message.notification!.apple!.imageUrl}' : null;
+          final String? appleImage = message.notification?.apple?.imageUrl ?? message.data['image']?.toString();
+          image = (appleImage != null && appleImage.isNotEmpty)
+              ? appleImage.startsWith('http') ? appleImage
+              : '${AppConstants.baseUrl}/storage/app/public/notification/$appleImage' : null;
         }
+      }
+
+      if (notificationBody.type == 'notification-offer') {
+        await showOfferCountdownNotification(
+          title: title ?? 'Last day offer',
+          body: body ?? '',
+          notificationBody: notificationBody,
+          fln: fln,
+        );
+        return;
       }
 
       if(image != null && image.isNotEmpty) {
@@ -206,9 +220,55 @@ class NotificationHelper {
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
       '6valley', '6valley', playSound: true,
       importance: Importance.max, priority: Priority.max, sound: RawResourceAndroidNotificationSound('notification'),
+      largeIcon: DrawableResourceAndroidBitmap('notification_icon'),
     );
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await fln.show(0, title, body, platformChannelSpecifics, payload: notificationBody != null ? jsonEncode(notificationBody.toJson()) : null);
+  }
+
+  static Future<void> showOfferCountdownNotification({
+    required String title,
+    required String body,
+    required NotificationBody notificationBody,
+    required FlutterLocalNotificationsPlugin fln,
+  }) async {
+    final DateTime? expiryDate = _parseOfferExpiryDate(notificationBody.expiryDate ?? '');
+    if (expiryDate == null) {
+      await showBigTextNotification(title, body, null, notificationBody, fln);
+      return;
+    }
+    final String notificationBodyText = body.trim().isEmpty ? _formatRemaining(expiryDate) : body;
+
+    final AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      '6valley',
+      '6valley',
+      importance: Importance.max,
+      priority: Priority.max,
+      playSound: true,
+      sound: const RawResourceAndroidNotificationSound('notification'),
+      showWhen: true,
+      when: expiryDate.millisecondsSinceEpoch,
+      usesChronometer: true,
+      chronometerCountDown: true,
+      onlyAlertOnce: true,
+      largeIcon: const DrawableResourceAndroidBitmap('notification_icon'),
+      subText: 'Offer Ends',
+      styleInformation: BigTextStyleInformation(
+        notificationBodyText,
+        htmlFormatBigText: true,
+        contentTitle: title,
+        htmlFormatContentTitle: true,
+      ),
+    );
+
+    final NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    await fln.show(
+      0,
+      title,
+      notificationBodyText,
+      platformChannelSpecifics,
+      payload: jsonEncode(notificationBody.toJson()),
+    );
   }
 
   static Future<void> showBigTextNotification(String? title, String body, String? orderID, NotificationBody? notificationBody, FlutterLocalNotificationsPlugin fln) async {
@@ -220,6 +280,8 @@ class NotificationHelper {
       '6valley', '6valley', importance: Importance.max,
       styleInformation: bigTextStyleInformation, priority: Priority.max, playSound: true,
       sound: const RawResourceAndroidNotificationSound('notification'),
+      largeIcon: const DrawableResourceAndroidBitmap('notification_icon'),
+      subText: 'Brilldaddy',
     );
     NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await fln.show(0, title, body, platformChannelSpecifics, payload: notificationBody != null ? jsonEncode(notificationBody.toJson()) : null);
@@ -238,6 +300,7 @@ class NotificationHelper {
       largeIcon: FilePathAndroidBitmap(largeIconPath), priority: Priority.max, playSound: true,
       styleInformation: bigPictureStyleInformation, importance: Importance.max,
       sound: const RawResourceAndroidNotificationSound('notification'),
+      subText: 'Brilldaddy',
     );
     final NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await fln.show(0, title, body, platformChannelSpecifics, payload: notificationBody != null ? jsonEncode(notificationBody.toJson()) : null);
@@ -261,6 +324,13 @@ class NotificationHelper {
       return NotificationBody(type: 'wallet');
     }else if(data['type'] == 'block') {
       return NotificationBody(type: 'block');
+    }else if(data['type'] == 'notification-offer') {
+      return NotificationBody(
+        type: 'notification-offer',
+        title: data['title'],
+        image: data['image'],
+        expiryDate: data['expiry-date']?.toString() ?? data['expiry_date']?.toString() ?? data['expiryDate']?.toString(),
+      );
     }else if(data['type'] == 'product_restock_update') {
       return NotificationBody(type: 'product_restock_update', title: data['title'], image: data['image'], productId: data['product_id'].toString(), slug: data['slug'], status: data['status']);
     } else {
@@ -268,17 +338,66 @@ class NotificationHelper {
     }
   }
 
+  static DateTime? _parseOfferExpiryDate(String rawDate) {
+    final List<DateFormat> formats = <DateFormat>[
+      DateFormat('dd-MM-yyyy h:mm a'),
+      DateFormat('dd-MM-yyyy hh:mm a'),
+      DateFormat('dd-MM-yyyy h:mm:ss a'),
+      DateFormat('dd-MM-yyyy hh:mm:ss a'),
+      DateFormat('yyyy-MM-dd HH:mm:ss'),
+      DateFormat('yyyy-MM-ddTHH:mm:ss'),
+      DateFormat('yyyy-MM-ddTHH:mm:ss.SSS'),
+      DateFormat('MM/dd/yyyy hh:mm:ss a'),
+    ];
+
+    for (final DateFormat format in formats) {
+      try {
+        return format.parseStrict(rawDate);
+      } catch (_) {}
+      try {
+        return format.parseLoose(rawDate);
+      } catch (_) {}
+    }
+
+    try {
+      return DateTime.parse(rawDate).toLocal();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String _formatRemaining(DateTime expiryDate) {
+    final Duration difference = expiryDate.difference(DateTime.now());
+    if (difference.isNegative || difference.inSeconds <= 0) {
+      return 'Offer expired';
+    }
+
+    final int days = difference.inDays;
+    final int hours = difference.inHours.remainder(24);
+    final int minutes = difference.inMinutes.remainder(60);
+    final int seconds = difference.inSeconds.remainder(60);
+
+    final List<String> parts = <String>[
+      if (days > 0) '${days}d',
+      if (days > 0 || hours > 0) '${hours} hr',
+      if (days > 0 || hours > 0 || minutes > 0) '${minutes} min',
+      '${seconds}s',
+    ];
+
+    return '${parts.join(' ')} remaining';
+  }
+
 }
 
 @pragma('vm:entry-point')
 Future<dynamic> myBackgroundMessageHandler(RemoteMessage message) async {
   if (kDebugMode) {
-    print("onBackground: ${message.notification!.title}/${message.notification!.body}/${message.notification!.titleLocKey}");
+    print("onBackground: ${message.notification?.title}/${message.notification?.body}/${message.notification?.titleLocKey}");
   }
-  // var androidInitialize = new AndroidInitializationSettings('notification_icon');
-  // var iOSInitialize = new IOSInitializationSettings();
-  // var initializationsSettings = new InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
-  // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  // flutterLocalNotificationsPlugin.initialize(initializationsSettings);
-  // NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin, true);
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  const AndroidInitializationSettings androidInitialize = AndroidInitializationSettings('notification_icon');
+  const DarwinInitializationSettings iOSInitialize = DarwinInitializationSettings();
+  const InitializationSettings initializationsSettings = InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+  await flutterLocalNotificationsPlugin.initialize(initializationsSettings);
+  await NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin, true);
 }

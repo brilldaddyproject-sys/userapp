@@ -13,6 +13,16 @@ class ProductDetailsModel {
   int? _brandId;
   String? _unit;
   int? _minQty;
+  int? _isClaim;
+  String? _productVoucherTitle;
+  String? _productVoucherDescription;
+  String? _productVoucherAmount;
+  String? _productVoucherPaymentAmount;
+  String? _claimAmount;
+  int? _isWinnerAnnounced;
+  int? _totalSlots;
+  int? _filledSlots;
+  int? _remainingSlots;
   int? _refundable;
   String? _digitalProductType;
   String? _digitalFileReady;
@@ -82,6 +92,15 @@ class ProductDetailsModel {
         int? brandId,
         String? unit,
         int? minQty,
+        String? productVoucherTitle,
+        String? productVoucherDescription,
+        String? productVoucherAmount,
+        String? productVoucherPaymentAmount,
+        String? claimAmount,
+        int? isWinnerAnnounced,
+        int? totalSlots,
+        int? filledSlots,
+        int? remainingSlots,
         int? refundable,
         String? digitalProductType,
         String? digitalFileReady,
@@ -138,8 +157,12 @@ class ProductDetailsModel {
 
         this.restockRequestedList,
         this.isRestockRequested,
-        this.clearanceSale
+        this.clearanceSale,
+        int? isClaim
       }) {
+    if (isClaim != null) {
+      _isClaim = isClaim;
+    }
     if (id != null) {
       _id = id;
     }
@@ -169,6 +192,33 @@ class ProductDetailsModel {
     }
     if (minQty != null) {
       _minQty = minQty;
+    }
+    if (productVoucherTitle != null) {
+      _productVoucherTitle = productVoucherTitle;
+    }
+    if (productVoucherDescription != null) {
+      _productVoucherDescription = productVoucherDescription;
+    }
+    if (productVoucherAmount != null) {
+      _productVoucherAmount = productVoucherAmount;
+    }
+    if (productVoucherPaymentAmount != null) {
+      _productVoucherPaymentAmount = productVoucherPaymentAmount;
+    }
+    if (claimAmount != null) {
+      _claimAmount = claimAmount;
+    }
+    if (isWinnerAnnounced != null) {
+      _isWinnerAnnounced = isWinnerAnnounced;
+    }
+    if (totalSlots != null) {
+      _totalSlots = totalSlots;
+    }
+    if (filledSlots != null) {
+      _filledSlots = filledSlots;
+    }
+    if (remainingSlots != null) {
+      _remainingSlots = remainingSlots;
     }
     if (refundable != null) {
       _refundable = refundable;
@@ -337,6 +387,7 @@ class ProductDetailsModel {
   }
 
   int? get id => _id;
+  int? get isClaim => _isClaim;
   String? get addedBy => _addedBy;
   int? get userId => _userId;
   String? get name => _name;
@@ -346,6 +397,15 @@ class ProductDetailsModel {
   int? get brandId => _brandId;
   String? get unit => _unit;
   int? get minQty => _minQty;
+  String? get productVoucherTitle => _productVoucherTitle;
+  String? get productVoucherDescription => _productVoucherDescription;
+  String? get productVoucherAmount => _productVoucherAmount;
+  String? get productVoucherPaymentAmount => _productVoucherPaymentAmount;
+  String? get claimAmount => _claimAmount;
+  int? get isWinnerAnnounced => _isWinnerAnnounced;
+  int? get totalSlots => _totalSlots;
+  int? get filledSlots => _filledSlots;
+  int? get remainingSlots => _remainingSlots;
   int? get refundable => _refundable;
   String? get digitalProductType => _digitalProductType;
   String? get digitalFileReady => _digitalFileReady;
@@ -401,6 +461,7 @@ class ProductDetailsModel {
 
   ProductDetailsModel.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
+    _isClaim = json['is_claim'];
     _addedBy = json['added_by'];
     _userId = json['user_id'];
     _name = json['name'];
@@ -415,6 +476,15 @@ class ProductDetailsModel {
     _brandId = json['brand_id'];
     _unit = json['unit'];
     _minQty = json['min_qty'];
+    _productVoucherTitle = json['productvouchertitle']?.toString();
+    _productVoucherDescription = json['productvoucherdescription']?.toString();
+    _productVoucherAmount = json['productvoucheramount']?.toString();
+    _productVoucherPaymentAmount = json['productvoucherpaymentamount']?.toString();
+    _claimAmount = json['claimamount']?.toString();
+    _isWinnerAnnounced = int.tryParse(json['is_winnerannounced'].toString());
+    _totalSlots = int.tryParse(json['totalslots']?.toString() ?? '');
+    _filledSlots = int.tryParse(json['filledslots']?.toString() ?? '');
+    _remainingSlots = int.tryParse(json['remainingslots']?.toString() ?? '');
     _refundable = json['refundable'];
     _digitalProductType = json['digital_product_type'];
     _digitalFileReady = json['digital_file_ready'];

@@ -47,6 +47,18 @@ import 'package:flutter_sixvalley_ecommerce/features/address/domain/services/add
   }
 
   @override
+  Future<ApiResponseModel> setDefaultAddress(int id) async {
+    ApiResponseModel response = await addressRepoInterface.setDefaultAddress(id);
+    return response;
+  }
+
+  @override
+  Future<ApiResponseModel> getDefaultAddress() async {
+    ApiResponseModel response = await addressRepoInterface.getDefaultAddress();
+    return response;
+  }
+
+  @override
   List<LabelAsModel> getAddressType() {
     return  addressRepoInterface.getAddressType();
   }

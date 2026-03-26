@@ -467,7 +467,7 @@ class _VoucherDetailsPageState extends State<VoucherDetailsPage> {
             .getRazorpayOrderId(
             widget.voucherBean.value!,
             widget.voucherBean.id!,
-            request.amount!)
+            request.amount!,"voucher")
             .then((_) {
           openRazorpay(request.amount!);
         });

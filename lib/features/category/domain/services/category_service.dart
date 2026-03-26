@@ -24,13 +24,23 @@ class CategoryService implements CategoryServiceInterface{
   }
 
   @override
-  Future saveVouchers<T>(VoucherRequest model) async{
-    return await categoryRepoInterface.saveVoucher(model);
+  Future saveVouchers<T>(VoucherRequest model,String from) async{
+    return await categoryRepoInterface.saveVoucher(model,from);
   }
 
   @override
   Future<ApiResponseModel<T>> myVouchers<T>() async{
     return await categoryRepoInterface.getMyVouchersList();
+  }
+
+  
+  Future<ApiResponseModel<T>> myClaims<T>() async{
+    return await categoryRepoInterface.getMyClaimsList();
+  }
+
+  @override
+  Future<ApiResponseModel<T>> myClaimsDetails<T>(String id) async{
+    return await categoryRepoInterface.getMyClaimsDetails(id);
   }
 
   @override
@@ -49,8 +59,8 @@ class CategoryService implements CategoryServiceInterface{
   }
 
   @override
-  Future<ApiResponseModel<T>> getRazorpayOrderId<T>(String amount,int id,String bidAmount) async{
-    return await categoryRepoInterface.getRazorpayOrderId(amount,id,bidAmount);
+  Future<ApiResponseModel<T>> getRazorpayOrderId<T>(String amount,int id,String bidAmount,String type) async{
+    return await categoryRepoInterface.getRazorpayOrderId(amount,id,bidAmount,type);
   }
 
   @override

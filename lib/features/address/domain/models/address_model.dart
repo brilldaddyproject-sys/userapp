@@ -13,6 +13,7 @@ class AddressModel {
   String? latitude;
   String? longitude;
   bool? isBilling;
+  bool? isDefault;
   String? guestId;
   String? email;
   AddressModel(
@@ -30,6 +31,7 @@ class AddressModel {
         this.latitude,
         this.longitude,
         this.isBilling,
+        this.isDefault,
         this.guestId,
         this.email,
       });
@@ -49,6 +51,7 @@ class AddressModel {
     latitude = json['latitude'];
     longitude = json['longitude'];
     isBilling = json['is_billing']??false;
+    isDefault = json['is_default'] == 1 || json['is_default'] == true || json['default_address'] == 1 || json['default_address'] == true;
     email = json['email'];
   }
 
@@ -68,6 +71,7 @@ class AddressModel {
     data['latitude'] = latitude;
     data['longitude'] = longitude;
     data['is_billing'] = isBilling;
+    data['is_default'] = isDefault;
     data['guest_id'] = guestId;
     data['email'] = email;
     return data;

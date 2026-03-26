@@ -9,6 +9,7 @@ import 'package:flutter_sixvalley_ecommerce/features/restock/screens/restock_lis
 import 'package:flutter_sixvalley_ecommerce/features/splash/domain/models/business_pages_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/support/screens/support_ticket_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/features/vouchers/screen/my_vouchers_list_page.dart';
+import 'package:flutter_sixvalley_ecommerce/features/vouchers/screen/my_claims_page.dart';
 import 'package:flutter_sixvalley_ecommerce/features/vouchers/screen/voucher_winners_page.dart';
 import 'package:flutter_sixvalley_ecommerce/features/wallet/controllers/wallet_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
@@ -117,6 +118,10 @@ class _MoreScreenState extends State<MoreScreen> {
                             Provider.of<AuthController>(context, listen: false).isLoggedIn() ?
                             MenuButtonWidget(image: Images.loyaltyPoint, title: "My Vouchers",
                               navigateTo: const MyVouchersListPage(),
+                            ):Container(),
+                            Provider.of<AuthController>(context, listen: false).isLoggedIn() ?
+                            MenuButtonWidget(image: Images.loyaltyPoint, title: "My Claims",
+                              navigateTo: const MyClaimsPage(),
                             ):Container(),
                             MenuButtonWidget(image: Images.previewEyeIcon, title: "Voucher Winners",
                               navigateTo: const VoucherWinnersPage(),

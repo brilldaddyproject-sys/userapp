@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/title_row_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/features/address/controllers/address_controller.dart';
+import 'package:flutter_sixvalley_ecommerce/features/address/screens/address_list_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/features/auth/controllers/auth_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/banner/controllers/banner_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/banner/widgets/banners_widget.dart';
@@ -63,6 +65,7 @@ import '../../../common/basewidget/custom_image_widget.dart';
 import '../../../common/basewidget/not_logged_in_bottom_sheet_widget.dart';
 import '../../../helper/date_converter.dart';
 import '../../../helper/price_converter.dart';
+import '../../notification/screens/notification_screen.dart';
 import '../../vouchers/widgets/voucher_time_card.dart';
 import 'package:marquee_widget/marquee_widget.dart';
 
@@ -79,6 +82,8 @@ class AsterThemeHomeScreen extends StatefulWidget {
     final bannerController = Provider.of<BannerController>(Get.context!, listen: false);
     final productController = Provider.of<ProductController>(Get.context!, listen: false);
     final cartController = Provider.of<CartController>(Get.context!, listen: false);
+    final notificationController = Provider.of<NotificationController>(Get.context!, listen: false);
+    final addressController = Provider.of<AddressController>(Get.context!, listen: false);
     cartController.getCartData(Get.context!);
     bannerController.getBannerList();
     categoryController.getCategoryList(reload);
@@ -88,15 +93,20 @@ class AsterThemeHomeScreen extends StatefulWidget {
     productController.getLatestProductList(1, isUpdate: false);
     productController.getJustForYouProduct(1, isUpdate: reload);
     productController.getRecommendedProduct();
+    notificationController.getNotificationList(1);
+    addressController.getDefaultAddress();
   }
 }
 
-class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> with SingleTickerProviderStateMixin {
+class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _marqueeScrollController = ScrollController();
 
  // late ScrollController _scrollController;
   late AnimationController _animationController;
+  late AnimationController _notificationAnimationController;
+  late Animation<double> _notificationPulseAnimation;
+  late Animation<double> _notificationTiltAnimation;
 
   void passData(int index, String title) {
     index = index;
@@ -111,10 +121,24 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> with Single
     super.initState();
 
     singleVendor = Provider.of<SplashController>(context, listen: false).configModel!.businessMode == "single";
+    Provider.of<AddressController>(context, listen: false).getDefaultAddress();
     _animationController =
     AnimationController(vsync: this, duration: const Duration(seconds: 15))
       ..addListener(_scrollMarquee)
       ..repeat();
+
+    _notificationAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+
+    _notificationPulseAnimation = Tween<double>(begin: 0.96, end: 1.08).animate(
+      CurvedAnimation(parent: _notificationAnimationController, curve: Curves.easeInOut),
+    );
+
+    _notificationTiltAnimation = Tween<double>(begin: -0.06, end: 0.06).animate(
+      CurvedAnimation(parent: _notificationAnimationController, curve: Curves.easeInOut),
+    );
   }
 
   void _scrollMarquee() {
@@ -151,6 +175,7 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> with Single
   @override
   void dispose() {
     _animationController.dispose();
+    _notificationAnimationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -167,12 +192,121 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> with Single
       /// ✅ NORMAL APP BAR
       appBar: AppBar(
         elevation: 0,
-        backgroundColor:Colors.white,
+        toolbarHeight: 68,
+        backgroundColor: const Color(0xFFF7F8FB),
         centerTitle: false,
         title: Image.asset(
           Images.logoImage,
           height: 35,
         ),
+        actions: [
+          TweenAnimationBuilder<Offset>(
+            tween: Tween<Offset>(
+              begin: const Offset(1.2, 0),
+              end: Offset.zero,
+            ),
+            duration: const Duration(milliseconds: 650),
+            curve: Curves.easeOutCubic,
+            builder: (context, offset, child) {
+              return Transform.translate(
+                offset: Offset(offset.dx * 30, 0),
+                child: child,
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Consumer<NotificationController>(
+                builder: (context, notificationController, _) {
+                  final String notificationCount = notificationController.notificationModel?.newNotificationItem.toString() ?? '0';
+                  final bool hasNotification = notificationCount != '0';
+
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                      );
+                    },
+                    icon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        AnimatedBuilder(
+                          animation: _notificationAnimationController,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: hasNotification ? _notificationTiltAnimation.value : 0,
+                              child: Transform.scale(
+                                scale: hasNotification ? _notificationPulseAnimation.value : 1,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: hasNotification
+                                  ? Theme.of(context).primaryColor.withValues(alpha: 0.10)
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image.asset(
+                              Images.notification,
+                              height: Dimensions.iconSizeDefault,
+                              width: Dimensions.iconSizeDefault,
+                              color: Theme.of(context).textTheme.bodyMedium?.color,
+                            ),
+                          ),
+                        ),
+                        if (hasNotification)
+                          Positioned(
+                            top: -6,
+                            right: -8,
+                            child: AnimatedBuilder(
+                              animation: _notificationAnimationController,
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: _notificationPulseAnimation.value,
+                                  child: child,
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: <Color>[Color(0xFFFF6B6B), Color(0xFFE03131)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: Colors.white, width: 1.5),
+                                  boxShadow: const <BoxShadow>[
+                                    BoxShadow(
+                                      color: Color(0x33E03131),
+                                      blurRadius: 10,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                constraints: const BoxConstraints(minWidth: 20),
+                                child: Text(
+                                  notificationCount,
+                                  textAlign: TextAlign.center,
+                                  style: titilliumSemiBold.copyWith(
+                                    color: Theme.of(context).colorScheme.secondaryContainer,
+                                    fontSize: Dimensions.fontSizeExtraSmall,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
 
       body: SafeArea(
@@ -206,18 +340,115 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> with Single
                     },
                   ),
 
-                /// 🔍 SEARCH BAR
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+                  child: Consumer<AddressController>(
+                    builder: (context, addressController, _) {
+                      final address = addressController.defaultAddress;
+                      final bool hasAddress = address != null;
+
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(22),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AddressListScreen()),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFFFFFFF), Color(0xFFF1F4FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(color: const Color(0xFFDDE5FF)),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x120F172A),
+                                blurRadius: 20,
+                                offset: Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 46,
+                                height: 46,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEDF3FF),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const Icon(
+                                  Icons.location_on_rounded,
+                                  color: Color(0xFF2854C5),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: addressController.isDefaultAddressLoading
+                                    ? Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Container(width: 90, height: 10, color: const Color(0xFFE6EBF7)),
+                                          const SizedBox(height: 8),
+                                          Container(width: double.infinity, height: 12, color: const Color(0xFFE6EBF7)),
+                                        ],
+                                      )
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            hasAddress ? 'Deliver to' : 'Location not set',
+                                            style: textBold.copyWith(
+                                              color: const Color(0xFF1C274C),
+                                              fontSize: Dimensions.fontSizeDefault,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            hasAddress
+                                                ? '${address.address ?? ''}, ${address.city ?? ''}'
+                                                : 'Add Address',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: textRegular.copyWith(
+                                              color: hasAddress ? const Color(0xFF5B6480) : const Color(0xFF2854C5),
+                                              fontSize: Dimensions.fontSizeDefault,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.keyboard_arrow_right_rounded,
+                                color: Color(0xFF7A84A8),
+                                size: 28,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
                 InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => SearchScreen(from: "home",)),
+                      MaterialPageRoute(builder: (_) => SearchScreen(from: "home")),
                     );
                   },
                   child: const Hero(
                     tag: 'search',
                     child: Material(
+                      color: Colors.transparent,
                       child: SearchHomePageWidget(),
                     ),
                   ),
@@ -504,5 +735,3 @@ class SliverDelegate extends SliverPersistentHeaderDelegate {
     return oldDelegate.maxExtent != height || oldDelegate.minExtent != height || child != oldDelegate.child;
   }
 }
-
-

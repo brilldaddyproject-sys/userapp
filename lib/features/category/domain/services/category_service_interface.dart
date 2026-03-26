@@ -12,10 +12,12 @@ abstract class CategoryServiceInterface {
   Future<ApiResponseModel<T>> getWinners<T>();
   Future<ApiResponseModel<T>> getWinnersList<T>();
   Future<ApiResponseModel<T>> doCanBit<T>(int id);
-  Future<dynamic> saveVouchers<T>(VoucherRequest model);
+  Future<dynamic> saveVouchers<T>(VoucherRequest model, String from);
   Future<ApiResponseModel<T>> myVouchers<T>();
+  Future<ApiResponseModel<T>> myClaims<T>();
+  Future<ApiResponseModel<T>> myClaimsDetails<T>(String id);
   Future<ApiResponseModel<T>> myVouchersDetails<T>(String id);
-  Future<ApiResponseModel<T>> getRazorpayOrderId<T>(String amount, int id, String bidAmount);
+  Future<ApiResponseModel<T>> getRazorpayOrderId<T>(String amount, int id, String bidAmount, String type);
 
 
 }
