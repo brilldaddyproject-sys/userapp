@@ -126,17 +126,38 @@ class ProductImageWidget extends StatelessWidget {
                           const SizedBox(height: Dimensions.paddingSizeSmall,),
 
 
-                          InkWell(onTap: () {
-                            if(productController.sharableLink != null) {
-                              Share.share(productController.sharableLink!);
-                            }
-                          },
-                              child: Card(elevation: 2,
+                          Builder(
+                            builder: (shareContext) {
+                              return InkWell(
+                                onTap: () {
+                                  if (productController.sharableLink != null) {
+                                    final RenderBox? box = shareContext.findRenderObject() as RenderBox?;
+                                    final Rect sharePositionOrigin = box != null
+                                        ? box.localToGlobal(Offset.zero) & box.size
+                                        : const Rect.fromLTWH(0, 0, 1, 1);
+
+                                    Share.share(
+                                      productController.sharableLink!,
+                                      sharePositionOrigin: sharePositionOrigin,
+                                    );
+                                  }
+                                },
+                                child: Card(
+                                  elevation: 2,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                                  child: Container(width: 40, height: 40,
-                                      decoration: BoxDecoration(color: Theme.of(context).cardColor, shape: BoxShape.circle),
-                                      child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                                          child: Image.asset(Images.share, color: Theme.of(context).primaryColor)))))
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(color: Theme.of(context).cardColor, shape: BoxShape.circle),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                                      child: Image.asset(Images.share, color: Theme.of(context).primaryColor),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
                         ])),
 
                     (productModel?.productType == 'digital' && productModel?.previewFileFullUrl != null && productModel?.previewFileFullUrl?.path != '') ?

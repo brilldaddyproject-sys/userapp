@@ -111,8 +111,9 @@ class VoucherRulesWidget extends StatelessWidget {
 
                     // Right Section
                     GestureDetector(
+                      behavior: HitTestBehavior.opaque,
                       onTap: () {
-                        // action
+                        showLanguageBottomSheet(context);
                       },
                       child: Row(
                         children: [
@@ -174,6 +175,8 @@ class VoucherRulesWidget extends StatelessWidget {
   void showLanguageBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

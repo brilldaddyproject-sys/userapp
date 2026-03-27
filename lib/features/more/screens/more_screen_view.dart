@@ -42,7 +42,9 @@ import 'package:flutter_sixvalley_ecommerce/features/more/widgets/title_button_w
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MoreScreen extends StatefulWidget {
-  const MoreScreen({super.key});
+  final bool showBackButton;
+  final VoidCallback? onBackPressed;
+  const MoreScreen({super.key, this.showBackButton = false, this.onBackPressed});
   @override
   State<MoreScreen> createState() => _MoreScreenState();
 }
@@ -84,6 +86,10 @@ class _MoreScreenState extends State<MoreScreen> {
             pinned: true,
             centerTitle: false,
             automaticallyImplyLeading: false,
+            leading: widget.showBackButton ? IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.white),
+              onPressed: widget.onBackPressed ?? () => Navigator.of(context).pop(),
+            ) : null,
             backgroundColor: Theme.of(context).highlightColor,
           collapsedHeight: 160,
           flexibleSpace: const ProfileInfoSectionWidget()),

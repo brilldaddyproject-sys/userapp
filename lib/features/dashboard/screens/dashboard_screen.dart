@@ -30,69 +30,76 @@ class DashBoardScreen extends StatefulWidget {
 
 class DashBoardScreenState extends State<DashBoardScreen> {
   int _pageIndex = 0;
-  late List<NavigationModel> _screens ;
+  late List<NavigationModel> _screens;
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey();
   final PageStorageBucket bucket = PageStorageBucket();
 
   bool singleVendor = false;
 
-
-
-
   @override
   void initState() {
     super.initState();
-      AsterThemeHomeScreen.loadData(false);
-      _screens = [
-        NavigationModel(
-          name: 'home',
-          icon: Images.homeImage,
-          screen: (AsterThemeHomeScreen()),
-        ),
-
-        //NavigationModel(name: 'inbox', icon: Images.messageImage, screen: const InboxScreen(isBackButtonExist: false)),
-        NavigationModel(name: 'cart', icon: Images.cartArrowDownImage, screen: const CartScreen(showBackButton: false), showCartIcon: true),
-        NavigationModel(name: 'orders', icon: Images.shoppingImage, screen:  const OrderScreen(isBacButtonExist: false)),
-        NavigationModel(name: 'more', icon: Images.moreImage, screen:  const MoreScreen()),
-      ];
-
+    AsterThemeHomeScreen.loadData(false);
+    _screens = [
+      NavigationModel(
+        name: 'home',
+        icon: Images.homeImage,
+        screen: (AsterThemeHomeScreen()),
+      ),
+      NavigationModel(name: 'cart', icon: Images.cartArrowDownImage, screen: CartScreen(showBackButton: true, onBackPressed: () => _setPage(0)), showCartIcon: true),
+      NavigationModel(name: 'orders', icon: Images.shoppingImage, screen: OrderScreen(isBacButtonExist: true, onBackPressed: () => _setPage(0))),
+      NavigationModel(name: 'more', icon: Images.moreImage, screen: MoreScreen(showBackButton: true, onBackPressed: () => _setPage(0))),
+    ];
 
     NetworkInfo.checkConnectivity(context);
+  }
 
+  Future<bool> _onWillPop() async {
+    if (_pageIndex != 0) {
+      _setPage(0);
+      return false;
+    }
+
+    await Future.delayed(const Duration(milliseconds: 150));
+    if (mounted && !Navigator.of(context).canPop()) {
+      showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: Get.context!,
+        builder: (_) => const AppExitCard(),
+      );
+    }
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(canPop: false,
-      onPopInvokedWithResult: (didPop, _) async {
-        if(_pageIndex != 0) {
-          _setPage(0);
-          return;
-        }else {
-          await Future.delayed(const Duration(milliseconds: 150));
-          if(context.mounted){
-            if (!Navigator.of(context).canPop()) {
-              showModalBottomSheet(backgroundColor: Colors.transparent,
-                  context: Get.context!, builder: (_)=> const AppExitCard());
-            }
-          }
-        }
-        return;
-      },
+    return WillPopScope(
+      onWillPop: _onWillPop,
       child: Scaffold(
         key: _scaffoldKey,
-
         body: PageStorage(bucket: bucket, child: _screens[_pageIndex].screen),
-        bottomNavigationBar: Container(height: 68,
-          decoration: BoxDecoration(borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(Dimensions.paddingSizeLarge)),
+        bottomNavigationBar: Container(
+          height: 68,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(Dimensions.paddingSizeLarge)),
             color: Theme.of(context).cardColor,
-            boxShadow: [BoxShadow(offset: const Offset(1,1), blurRadius: 2, spreadRadius: 1,
-                color: Theme.of(context).primaryColor.withValues(alpha:.125))],),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: _getBottomWidget(singleVendor)))));
+            boxShadow: [
+              BoxShadow(
+                offset: const Offset(1, 1),
+                blurRadius: 2,
+                spreadRadius: 1,
+                color: Theme.of(context).primaryColor.withValues(alpha: .125),
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: _getBottomWidget(singleVendor),
+          ),
+        ),
+      ),
+    );
   }
-
 
   void _setPage(int pageIndex) {
     setState(() {
@@ -102,19 +109,19 @@ class DashBoardScreenState extends State<DashBoardScreen> {
 
   List<Widget> _getBottomWidget(bool isSingleVendor) {
     List<Widget> list = [];
-    for(int index = 0; index < _screens.length; index++) {
-      list.add(Expanded(child: CustomMenuWidget(
-        isSelected: _pageIndex == index,
-        name: _screens[index].name,
-        icon: _screens[index].icon,
-        showCartCount: _screens[index].showCartIcon ?? false,
-        onTap: () => _setPage(index))));
+    for (int index = 0; index < _screens.length; index++) {
+      list.add(
+        Expanded(
+          child: CustomMenuWidget(
+            isSelected: _pageIndex == index,
+            name: _screens[index].name,
+            icon: _screens[index].icon,
+            showCartCount: _screens[index].showCartIcon ?? false,
+            onTap: () => _setPage(index),
+          ),
+        ),
+      );
     }
     return list;
   }
-
 }
-
-
-
-

@@ -36,7 +36,7 @@ class LatestProductListWidget extends StatelessWidget {
                 padding: EdgeInsets.only(left: 10,right: 10),
                 child: Container(
                   decoration: BoxDecoration(
-                    color:  Colors.black26, // Blue color
+                    color:  Colors.deepPurpleAccent, // Blue color
                     borderRadius: BorderRadius.circular(16), // Fully rounded capsule
                   ),
                   child: Padding(
@@ -54,13 +54,13 @@ class LatestProductListWidget extends StatelessWidget {
                             height: 20,
                             width: 30,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0059D6), // Blue color
+                              color: Colors.white, // Blue color
                               borderRadius: BorderRadius.circular(50), // Fully rounded capsule
                             ),
                             child: const Center(
                               child: Icon(
                                 Icons.arrow_forward,
-                                color: Colors.white,
+                                color: Colors.black,
                                 size: 14,
                               ),
                             ),

@@ -28,6 +28,10 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
+# `file_picker` pulls `DKImagePickerController/PhotoGallery` when media picking is enabled.
+# Disabling media mode avoids the DKPhotoGallery asset-catalog build path that is failing here.
+Pod::PICKER_MEDIA = false
+
 
 
 target 'Runner' do

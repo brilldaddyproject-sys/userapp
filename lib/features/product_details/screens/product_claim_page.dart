@@ -135,7 +135,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
 
     final String payableAmount = _amountController.text.trim();
     final String claimAmount = widget.product.claimAmount ?? widget.product.productVoucherAmount ?? payableAmount;
-    request.amount = _amountController.text;
+    request.amount = widget.product.productVoucherPaymentAmount;
     request.voucherId = widget.product.id.toString();
     if ((double.tryParse(payableAmount) ?? 0) <= 0) {
       showCustomSnackBar('Invalid payable amount', context);
@@ -149,7 +149,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
 
 
     await _categoryController?.getRazorpayOrderId(
-      payableAmount,
+        widget.product.productVoucherPaymentAmount.toString() ,
       widget.product.id ?? 0,
       claimAmount,
       "product"
@@ -158,7 +158,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
     if (!mounted) return;
 
     if ((_categoryController?.razorPayOrderId ?? '').isNotEmpty) {
-      _openRazorpay(payableAmount);
+      _openRazorpay(widget.product.productVoucherPaymentAmount.toString());
     } else {
       setState(() {
         _isLoading = false;
@@ -276,8 +276,34 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
                   if (_agreed) ...[
+                    const SizedBox(height: 10),
+                    if(_agreed)
+                      Container(
+                        width: double.infinity,
+                        height: 30,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            widget.product.productVoucherPaymentAmount == "0.00"
+                                ? "Free"
+                                : PriceConverter.convertPrice(
+                              context,
+                              double.parse(widget.product.productVoucherPaymentAmount!),
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 10),
                     if(Platform.isAndroid)
                       TextField(
@@ -288,7 +314,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
                         decoration: const InputDecoration(
                           hintText: "Enter your Favourite Amount",
                           filled: true,
-                          fillColor: Color(0xFFF1F1F1),
+                          fillColor: Colors.grey,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide.none,
@@ -304,7 +330,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         placeholder: "Enter your Favourite Amount",
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F1F1),
+                          color: Colors.grey,
                           borderRadius: BorderRadius.circular(10),
                         ),
 

@@ -31,7 +31,8 @@ class CartScreen extends StatefulWidget {
   final bool fromCheckout;
   final int sellerId;
   final bool showBackButton;
-  const CartScreen({super.key, this.fromCheckout = false, this.sellerId = 1, this.showBackButton = true});
+  final VoidCallback? onBackPressed;
+  const CartScreen({super.key, this.fromCheckout = false, this.sellerId = 1, this.showBackButton = true, this.onBackPressed});
 
   @override
   CartScreenState createState() => CartScreenState();
@@ -434,7 +435,7 @@ class CartScreenState extends State<CartScreen> {
                 ) : null,
 
 
-                appBar: CustomAppBar(title: getTranslated('my_cart', context), isBackButtonExist: widget.showBackButton,showLogo: false,),
+                appBar: CustomAppBar(title: getTranslated('my_cart', context), isBackButtonExist: widget.showBackButton, showLogo: false, onBackPressed: widget.onBackPressed),
                 body: Column(children: [
 
                   cart.cartLoading ? const Expanded(child: CartPageShimmerWidget()) : sellerList.isNotEmpty ?

@@ -16,7 +16,8 @@ import 'package:provider/provider.dart';
 
 class OrderScreen extends StatefulWidget {
   final bool isBacButtonExist;
-  const OrderScreen({super.key, this.isBacButtonExist = true});
+  final VoidCallback? onBackPressed;
+  const OrderScreen({super.key, this.isBacButtonExist = true, this.onBackPressed});
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
@@ -37,7 +38,7 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: CustomAppBar(title: getTranslated('order', context), isBackButtonExist: widget.isBacButtonExist),
+     appBar: CustomAppBar(title: getTranslated('order', context), isBackButtonExist: widget.isBacButtonExist, onBackPressed: widget.onBackPressed),
       body: isGuestMode ? NotLoggedInWidget(message: getTranslated('to_view_the_order_history', context)) :
 
       Consumer<OrderController>(

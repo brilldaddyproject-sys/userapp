@@ -125,8 +125,7 @@ class _BottomCartWidgetState extends State<BottomCartWidget> {
                 _CartShortcutButton(),
                 const SizedBox(width: Dimensions.paddingSizeDefaultAddress),
                 if (showClaimButton) ...<Widget>[
-                  Flexible(
-                    flex: 10,
+                  Expanded(
                     child: _ClaimNowButton(
                       onTap: () {
                         Navigator.of(context).push(
@@ -140,7 +139,6 @@ class _BottomCartWidgetState extends State<BottomCartWidget> {
                   const SizedBox(width: 8),
                 ],
                 Expanded(
-                  flex: showClaimButton ? 15 : 1,
                   child: _BottomActionButton(
                     text: getTranslated('add_to_cart', context) ?? 'Add to cart',
                     backgroundColor: Theme.of(context).primaryColor,
@@ -391,24 +389,37 @@ class _ClaimNowButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.green, // background color
+            borderRadius: BorderRadius.circular(20), // rounded corners
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Icon(Icons.bolt_rounded, color: Color(0xFF5A3600), size: 16),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  'Claim now',
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  textAlign: TextAlign.center,
-                  style: titilliumSemiBold.copyWith(
-                    fontSize: 13,
-                    color: const Color(0xFF5A3600),
-                  ),
+              const Icon(
+                Icons.bolt_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Claim now',
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: titilliumSemiBold.copyWith(
+                  fontSize: 13,
+                  color: Colors.white,
                 ),
               ),
             ],

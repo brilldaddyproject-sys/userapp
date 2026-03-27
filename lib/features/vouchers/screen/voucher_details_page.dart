@@ -138,37 +138,46 @@ class _VoucherDetailsPageState extends State<VoucherDetailsPage> {
         onBackPressed: () => Navigator.pop(context),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Consumer<CategoryController>(
-            builder: (context, categoryProvider, _) {
-                return !categoryProvider.isCanLoading ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
 
-                    const VoucherRulesWidget(),
-                    const SizedBox(height: 12),
+        child: Column(
+          children: [
+            const VoucherRulesWidget(),
+            SizedBox(height: 20,),
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Consumer<CategoryController>(
+                  builder: (context, categoryProvider, _) {
+                      return !categoryProvider.isCanLoading ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
 
-                    _voucherHeader(context),
-                    const SizedBox(height: 16),
-                    if(widget.voucherBean.value == "0.00")
-                      _termsText(),
-                    if(widget.voucherBean.value != "0.00")
-                      _paidTermsText(),
-                    const SizedBox(height: 12),
-                    if(!categoryProvider.isCanBit)
-                    Text(
-                      "Your limit is exceeded.",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    ),
-                    if(categoryProvider.isCanBit)
-                    _bidSection(categoryProvider)
-                  ],
-                ):Center(child: CircularProgressIndicator());
-            }),
+
+                          const SizedBox(height: 12),
+
+                          _voucherHeader(context),
+                          const SizedBox(height: 16),
+                          if(widget.voucherBean.value == "0.00")
+                            _termsText(),
+                          if(widget.voucherBean.value != "0.00")
+                            _paidTermsText(),
+                          const SizedBox(height: 12),
+                          if(!categoryProvider.isCanBit)
+                          Text(
+                            "Your limit is exceeded.",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                          if(categoryProvider.isCanBit)
+                          _bidSection(categoryProvider)
+                        ],
+                      ):Center(child: CircularProgressIndicator());
+                  }),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -379,7 +388,7 @@ class _VoucherDetailsPageState extends State<VoucherDetailsPage> {
             decoration: const InputDecoration(
               hintText: "Enter your Favourite Amount",
               filled: true,
-              fillColor: Color(0xFFF1F1F1),
+              fillColor: Colors.grey,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
                 borderSide: BorderSide.none,
