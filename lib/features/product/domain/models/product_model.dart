@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_sixvalley_ecommerce/data/model/image_full_url.dart';
-import 'package:flutter_sixvalley_ecommerce/features/product_details/domain/models/product_details_model.dart';
+
+import '../../../product_details/domain/models/product_details_model.dart';
+
 
 class ProductModel {
   int? totalSize;
@@ -50,7 +52,7 @@ class Product {
   String? _name;
   String? _slug;
   String? _productType;
-  List<CategoryIds>? _categoryIds;
+  List<CategoryIdss>? _categoryIds;
   String? _unit;
   List<String>? _images;
   List<ImageFullUrl>? _imagesFullUrl;
@@ -65,6 +67,16 @@ class Product {
   double? _tax;
   String? _taxModel;
   int? _minQty;
+  int? _isClaim;
+  String? _productVoucherTitle;
+  String? _productVoucherDescription;
+  String? _productVoucherAmount;
+  String? _productVoucherPaymentAmount;
+  String? _claimAmount;
+  int? _isWinnerAnnounced;
+  int? _totalSlots;
+  int? _filledSlots;
+  int? _remainingSlots;
   int? _refundable;
   String? _digitalProductType;
   String? _digitalFileReady;
@@ -95,9 +107,19 @@ class Product {
         String? name,
         String? slug,
         String? productType,
-        List<CategoryIds>? categoryIds,
+        List<CategoryIdss>? categoryIds,
         String? unit,
         int? minQty,
+        int? isClaim,
+        String? productVoucherTitle,
+        String? productVoucherDescription,
+        String? productVoucherAmount,
+        String? productVoucherPaymentAmount,
+        String? claimAmount,
+        int? isWinnerAnnounced,
+        int? totalSlots,
+        int? filledSlots,
+        int? remainingSlots,
         int? refundable,
         String? digitalProductType,
         String? digitalFileReady,
@@ -140,6 +162,16 @@ class Product {
     _categoryIds = categoryIds;
     _unit = unit;
     _minQty = minQty;
+    _isClaim = isClaim;
+    _productVoucherTitle = productVoucherTitle;
+    _productVoucherDescription = productVoucherDescription;
+    _productVoucherAmount = productVoucherAmount;
+    _productVoucherPaymentAmount = productVoucherPaymentAmount;
+    _claimAmount = claimAmount;
+    _isWinnerAnnounced = isWinnerAnnounced;
+    _totalSlots = totalSlots;
+    _filledSlots = filledSlots;
+    _remainingSlots = remainingSlots;
     if (refundable != null) {
       _refundable = refundable;
     }
@@ -190,9 +222,19 @@ class Product {
   String? get name => _name;
   String? get slug =>_slug;
   String? get productType => _productType;
-  List<CategoryIds>? get categoryIds => _categoryIds;
+  List<CategoryIdss>? get categoryIds => _categoryIds;
   String? get unit => _unit;
   int? get minQty => _minQty;
+  int? get isClaim => _isClaim;
+  String? get productVoucherTitle => _productVoucherTitle;
+  String? get productVoucherDescription => _productVoucherDescription;
+  String? get productVoucherAmount => _productVoucherAmount;
+  String? get productVoucherPaymentAmount => _productVoucherPaymentAmount;
+  String? get claimAmount => _claimAmount;
+  int? get isWinnerAnnounced => _isWinnerAnnounced;
+  int? get totalSlots => _totalSlots;
+  int? get filledSlots => _filledSlots;
+  int? get remainingSlots => _remainingSlots;
   int? get refundable => _refundable;
   String? get digitalProductType => _digitalProductType;
   String? get digitalFileReady => _digitalFileReady;
@@ -233,16 +275,26 @@ class Product {
       _categoryIds = [];
       try{
         json['category_ids'].forEach((v) {
-          _categoryIds!.add(CategoryIds.fromJson(v));
+          _categoryIds!.add(CategoryIdss.fromJson(v));
         });
       }catch(e){
         jsonDecode(json['category_ids']).forEach((v) {
-          _categoryIds!.add(CategoryIds.fromJson(v));
+          _categoryIds!.add(CategoryIdss.fromJson(v));
         });
       }
     }
     _unit = json['unit'];
     _minQty = json['min_qty'];
+    _isClaim = int.tryParse(json['is_claim']?.toString() ?? '');
+    _productVoucherTitle = json['productvouchertitle']?.toString();
+    _productVoucherDescription = json['productvoucherdescription']?.toString();
+    _productVoucherAmount = json['productvoucheramount']?.toString();
+    _productVoucherPaymentAmount = json['productvoucherpaymentamount']?.toString();
+    _claimAmount = json['claimamount']?.toString();
+    _isWinnerAnnounced = int.tryParse(json['is_winnerannounced']?.toString() ?? '');
+    _totalSlots = int.tryParse(json['totalslots']?.toString() ?? '');
+    _filledSlots = int.tryParse(json['filledslots']?.toString() ?? '');
+    _remainingSlots = int.tryParse(json['remainingslots']?.toString() ?? '');
 
     if(json['refundable']!=null){
       _refundable = int.parse(json['refundable'].toString());
@@ -391,19 +443,85 @@ class Product {
         ? ClearanceSale.fromJson(json['clearance_sale'])
         : null;
   }
+
+  ProductDetailsModel toClaimProductDetailsModel() {
+    return ProductDetailsModel(
+      id: _id,
+      addedBy: _addedBy,
+      userId: _userId,
+      name: _name,
+      slug: _slug,
+      productType: _productType,
+      categoryIds: _categoryIds,
+      unit: _unit,
+      minQty: _minQty,
+      isClaim: _isClaim,
+      productVoucherTitle: _productVoucherTitle,
+      productVoucherDescription: _productVoucherDescription,
+      productVoucherAmount: _productVoucherAmount,
+      productVoucherPaymentAmount: _productVoucherPaymentAmount,
+      claimAmount: _claimAmount,
+      isWinnerAnnounced: _isWinnerAnnounced,
+      totalSlots: _totalSlots,
+      filledSlots: _filledSlots,
+      remainingSlots: _remainingSlots,
+      refundable: _refundable,
+      digitalProductType: _digitalProductType,
+      digitalFileReady: _digitalFileReady,
+      images: _images,
+      imagesFullUrl: _imagesFullUrl,
+      thumbnail: _thumbnail,
+      thumbnailFullUrl: _thumbnailFullUrl,
+      colors: _colors?.map((color) => ColorModel.fromJson({'name': color.name, 'code': color.code})).toList(),
+      choiceOptions: _choiceOptions,
+      variation: _variation,
+      unitPrice: _unitPrice,
+      purchasePrice: _purchasePrice,
+      tax: _tax,
+      taxModel: _taxModel,
+      taxType: _taxType,
+      discount: _discount,
+      discountType: _discountType,
+      currentStock: _currentStock,
+      details: _details,
+      createdAt: _createdAt,
+      updatedAt: _updatedAt,
+      shippingCost: _shippingCost,
+      minimumOrderQty: _minimumOrderQty,
+      productImagesNull: (_imagesFullUrl?.isEmpty ?? true),
+      previewFileFullUrl: previewFileFullUrl,
+      clearanceSale: clearanceSale,
+    );
+  }
 }
 
-class CategoryIds {
+class CategoryIdss {
+  String? _id;
   int? _position;
 
-  CategoryIds({int? position}) {
-    _position = position;
+  CategoryIdss({String? id, int? position}) {
+    if (id != null) {
+      _id = id;
+    }
+    if (position != null) {
+      _position = position;
+    }
   }
 
+  String? get id => _id;
   int? get position => _position;
 
-  CategoryIds.fromJson(Map<String, dynamic> json) {
+
+  CategoryIdss.fromJson(Map<String, dynamic> json) {
+    _id = json['id'];
     _position = json['position'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = _id;
+    data['position'] = _position;
+    return data;
   }
 
 }
@@ -477,6 +595,7 @@ class Variation {
     _sku = json['sku'];
     _qty = json['qty'];
   }
+
 }
 
 class Rating {

@@ -134,6 +134,7 @@ class _BottomCartWidgetState extends State<BottomCartWidget> {
                           ),
                         );
                       },
+                      amount:widget.product!.productVoucherPaymentAmount ?? "0"
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -364,8 +365,8 @@ class _SlotMetric extends StatelessWidget {
 
 class _ClaimNowButton extends StatelessWidget {
   final VoidCallback onTap;
-
-  const _ClaimNowButton({required this.onTap});
+  String amount;
+  _ClaimNowButton({required this.onTap,required this.amount});
 
   @override
   Widget build(BuildContext context) {
@@ -406,14 +407,8 @@ class _ClaimNowButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Icon(
-                Icons.bolt_rounded,
-                color: Colors.white,
-                size: 16,
-              ),
-              const SizedBox(width: 6),
               Text(
-                'Claim now',
+                'Claim @₹${amount}',
                 maxLines: 1,
                 overflow: TextOverflow.fade,
                 softWrap: false,

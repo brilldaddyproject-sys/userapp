@@ -9,7 +9,7 @@ class ProductDetailsModel {
   String? _name;
   String? _slug;
   String? _productType;
-  List<CategoryIds>? _categoryIds;
+  List<CategoryIdss>? _categoryIds;
   int? _brandId;
   String? _unit;
   int? _minQty;
@@ -88,7 +88,7 @@ class ProductDetailsModel {
         String? name,
         String? slug,
         String? productType,
-        List<CategoryIds>? categoryIds,
+        List<CategoryIdss>? categoryIds,
         int? brandId,
         String? unit,
         int? minQty,
@@ -393,7 +393,7 @@ class ProductDetailsModel {
   String? get name => _name;
   String? get slug => _slug;
   String? get productType => _productType;
-  List<CategoryIds>? get categoryIds => _categoryIds;
+  List<CategoryIdss>? get categoryIds => _categoryIds;
   int? get brandId => _brandId;
   String? get unit => _unit;
   int? get minQty => _minQty;
@@ -468,9 +468,9 @@ class ProductDetailsModel {
     _slug = json['slug'];
     _productType = json['product_type'];
     if (json['category_ids'] != null) {
-      _categoryIds = <CategoryIds>[];
+      _categoryIds = <CategoryIdss>[];
       json['category_ids'].forEach((v) {
-        _categoryIds!.add(CategoryIds.fromJson(v));
+        _categoryIds!.add(CategoryIdss.fromJson(v));
       });
     }
     _brandId = json['brand_id'];

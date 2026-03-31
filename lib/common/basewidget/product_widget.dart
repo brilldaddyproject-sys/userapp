@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/discount_tag_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/product/domain/models/product_model.dart';
+import 'package:flutter_sixvalley_ecommerce/features/product_details/screens/product_claim_page.dart';
 import 'package:flutter_sixvalley_ecommerce/features/product_details/screens/product_details_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/helper/price_converter.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/controllers/localization_controller.dart';
@@ -135,7 +136,7 @@ class ProductWidget extends StatelessWidget {
 
 
                    Padding(
-                     padding: const EdgeInsets.only(left: 10),
+                     padding: const EdgeInsets.only(left: 10,right: 10),
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
@@ -146,7 +147,7 @@ class ProductWidget extends StatelessWidget {
                                         .textTheme
                                         .bodyLarge
                                         ?.color),
-                                maxLines: productNameLine,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
                             Row(
                            children: [
@@ -167,6 +168,39 @@ class ProductWidget extends StatelessWidget {
                                  style: titleRegular.copyWith(color: Theme.of(context).hintColor,
                                      decoration: TextDecoration.lineThrough, fontSize: 12)) : const SizedBox.shrink(),
                           ],
+                         ),
+                         const SizedBox(height: 8),
+                         if (productModel.isClaim == 1)
+                           _ProductActionButton(
+                             label: 'Claim @ ₹${productModel.productVoucherPaymentAmount}',
+                             color: const Color(0xFF1F9D55),
+                             onTap: () {
+                               Navigator.push(
+                                 context,
+                                 MaterialPageRoute(
+                                   builder: (_) => ProductClaimPage(
+                                     product: productModel.toClaimProductDetailsModel(),
+                                   ),
+                                 ),
+                               );
+                             },
+                           ),
+                         const SizedBox(height: 6),
+                         _ProductActionButton(
+                           label: 'Buy now',
+                           color: Theme.of(context).primaryColor,
+                           onTap: () {
+                             Navigator.push(
+                               context,
+                               PageRouteBuilder(
+                                 transitionDuration: const Duration(milliseconds: 1000),
+                                 pageBuilder: (context, anim1, anim2) => ProductDetails(
+                                   productId: productModel.id,
+                                   slug: productModel.slug,
+                                 ),
+                               ),
+                             );
+                           },
                          ),
                        ],
                      ),
@@ -199,4 +233,49 @@ class ProductWidget extends StatelessWidget {
   }
 }
 
+class _ProductActionButton extends StatelessWidget {
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
 
+  const _ProductActionButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: color.withValues(alpha: 0.20),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: textMedium.copyWith(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

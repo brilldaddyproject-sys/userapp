@@ -81,7 +81,7 @@ class _WinnerAutoSliderState extends State<WinnerAutoSlider> {
                           text: "${winner.voucher!.title} ",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        const TextSpan(text: "with "),
+                        const TextSpan(text: "for "),
                         TextSpan(
                           text: "${PriceConverter.convertPrice(context, double.parse(winner.amount!))}",
                           style: const TextStyle(fontWeight: FontWeight.bold),

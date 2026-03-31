@@ -45,6 +45,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
     super.initState();
     _categoryController = Provider.of<CategoryController>(Get.context!, listen: false);
     Provider.of<ProfileController>(context, listen: false).getUserInfo(context);
+    Provider.of<SplashController>(context, listen: false).getBusinessPagesList('default');
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -71,12 +72,17 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
   }
 
   void _onTermsTap(SplashController provider) {
+    final BusinessPageModel? termsPage = getPageBySlug('terms-and-conditions', provider.defaultBusinessPages);
+
+    if (termsPage == null) {
+      showCustomSnackBar('Terms and conditions are not available right now', context, isToaster: true);
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => HtmlViewScreen(
-          page: getPageBySlug('terms-and-conditions', provider.defaultBusinessPages),
-        ),
+        builder: (_) => HtmlViewScreen(page: termsPage),
       ),
     );
   }
@@ -218,45 +224,57 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
                     accentColor: Theme.of(context).primaryColor,
                   ),
                   const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: .15)),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Checkbox(
-                          value: _agreed,
-                          onChanged: (v) => setState(() => _agreed = v ?? false),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: RichText(
-                              text: TextSpan(
-                                text: 'I agree to the ',
-                                style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  InkWell(
+                    onTap: (){
+                      _onTermsTap(
+                        Provider.of<SplashController>(context, listen: false),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: .15)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Checkbox(
+                            value: _agreed,
+                            onChanged: (v) => setState(() => _agreed = v ?? false),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
-                                  TextSpan(
-                                    text: 'Terms and Conditions',
-                                    style: textBold.copyWith(
-                                      color: Theme.of(context).primaryColor,
-                                      decoration: TextDecoration.underline,
+                                  Text(
+                                    'I agree to the ',
+                                    style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 2),
+                                      child: Text(
+                                        'Terms and Conditions',
+                                        style: textBold.copyWith(
+                                          color: Theme.of(context).primaryColor,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
                                     ),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () => _onTermsTap(
-                                            Provider.of<SplashController>(context, listen: false),
-                                          ),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -292,7 +310,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
                           child: Text(
                             widget.product.productVoucherPaymentAmount == "0.00"
                                 ? "Free"
-                                : PriceConverter.convertPrice(
+                                : "Claim @"+PriceConverter.convertPrice(
                               context,
                               double.parse(widget.product.productVoucherPaymentAmount!),
                             ),
@@ -314,7 +332,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
                         decoration: const InputDecoration(
                           hintText: "Enter your Favourite Amount",
                           filled: true,
-                          fillColor: Colors.grey,
+                          fillColor: Colors.black12,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide.none,
@@ -330,7 +348,7 @@ class _ProductClaimPageState extends State<ProductClaimPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         placeholder: "Enter your Favourite Amount",
                         decoration: BoxDecoration(
-                          color: Colors.grey,
+                          color: Colors.black12,
                           borderRadius: BorderRadius.circular(10),
                         ),
 

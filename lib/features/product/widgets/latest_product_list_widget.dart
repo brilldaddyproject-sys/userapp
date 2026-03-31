@@ -76,7 +76,7 @@ class LatestProductListWidget extends StatelessWidget {
 
 
               SizedBox(
-                height: ResponsiveHelper.isTab(context)? MediaQuery.of(context).size.width * .58 : 285,
+                height: ResponsiveHelper.isTab(context)? MediaQuery.of(context).size.width * .58 : 360 ,
                 child: CarouselSlider.builder(
                   options: CarouselOptions(
                     viewportFraction: ResponsiveHelper.isTab(context)? .5 :.65,

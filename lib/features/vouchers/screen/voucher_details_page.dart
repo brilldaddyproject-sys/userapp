@@ -319,138 +319,145 @@ class _VoucherDetailsPageState extends State<VoucherDetailsPage> {
   }
 
   Widget _bidSection(CategoryController categoryProvider) {
-    return Column(
-      children: [
+    return InkWell(
+      onTap: (){
+        _onTermsTap(
+            Provider.of<SplashController>(context, listen: false));
+      },
+      child: Column(
+        children: [
 
-        /// AGREEMENT
-        Row(
-          children: [
-            Checkbox(
-              value: _agreed,
-              onChanged: (v) => setState(() => _agreed = v ?? false),
-            ),
-            Expanded(
-              child: RichText(
-                text: TextSpan(
-                  text: "I agree to the ",
-                  style: const TextStyle(color: Colors.black),
-                  children: [
-                    TextSpan(
-                      text: "Terms and Conditions",
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
+          /// AGREEMENT
+          Row(
+            children: [
+              Checkbox(
+                value: _agreed,
+                onChanged: (v) => setState(() => _agreed = v ?? false),
+              ),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    text: "I agree to the ",
+                    style: const TextStyle(color: Colors.black),
+                    children: [
+                      TextSpan(
+                        text: "Terms and Conditions",
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = (){
+
+                          },
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => _onTermsTap(
-                            Provider.of<SplashController>(context, listen: false)),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if(_agreed)
+          Container(
+            width: double.infinity,
+            height: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                widget.voucherBean.value == "0.00"
+                    ? "Free"
+                    : PriceConverter.convertPrice(
+                  context,
+                  double.parse(widget.voucherBean.value!),
+                ),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-          ],
-        ),
-        if(_agreed)
-        Container(
-          width: double.infinity,
-          height: 30,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.orange,
-            borderRadius: BorderRadius.circular(8),
           ),
-          child: Center(
-            child: Text(
-              widget.voucherBean.value == "0.00"
-                  ? "Free"
-                  : PriceConverter.convertPrice(
-                context,
-                double.parse(widget.voucherBean.value!),
-              ),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-        /// AMOUNT INPUT
-        if (_agreed) ...[
-          const SizedBox(height: 10),
-          if(Platform.isAndroid)
-          TextField(
-            controller: amountController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              hintText: "Enter your Favourite Amount",
-              filled: true,
-              fillColor: Colors.grey,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-          if(Platform.isIOS)
-            CupertinoTextField(
+          /// AMOUNT INPUT
+          if (_agreed) ...[
+            const SizedBox(height: 10),
+            if(Platform.isAndroid)
+            TextField(
               controller: amountController,
-              focusNode: focusNode,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              placeholder: "Enter your Favourite Amount",
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F1F1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-
-              /// 🔥 iOS DONE BUTTON
-              suffix: CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: const Text("Done"),
-                onPressed: () => focusNode.unfocus(),
-              ),
-            )
-        ],
-
-        const SizedBox(height: 12),
-
-        /// PRIMARY BUTTON (FIXED)
-       !_isLoading ? SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                hintText: "Enter your Favourite Amount",
+                filled: true,
+                fillColor: Colors.black12,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
-            onPressed:_onProceedPressed,
-            child: Text(
-              widget.voucherBean.value == "0.00"
-                  ? "Submit"
-                  : "Proceed to payment (${PriceConverter.convertPrice(
-                context,
-                double.parse(widget.voucherBean.value!),
-              )})",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            if(Platform.isIOS)
+              CupertinoTextField(
+                controller: amountController,
+                focusNode: focusNode,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                placeholder: "Enter your Favourite Amount",
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+
+                /// 🔥 iOS DONE BUTTON
+                suffix: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: const Text("Done"),
+                  onPressed: () => focusNode.unfocus(),
+                ),
+              )
+          ],
+
+          const SizedBox(height: 12),
+
+          /// PRIMARY BUTTON (FIXED)
+         !_isLoading ? SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed:_onProceedPressed,
+              child: Text(
+                widget.voucherBean.value == "0.00"
+                    ? "Submit"
+                    : "Proceed to payment (${PriceConverter.convertPrice(
+                  context,
+                  double.parse(widget.voucherBean.value!),
+                )})",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+          ):const Center(
+            child: SizedBox(
+             height: 40,
+               width: 40,
+               child: CircularProgressIndicator()),
           ),
-        ):const Center(
-          child: SizedBox(
-           height: 40,
-             width: 40,
-             child: CircularProgressIndicator()),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
